@@ -1,0 +1,11 @@
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\bin\Debug\WordAnalysis.exe.config
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\obj\Debug\WordAnalysis.csprojResolveAssemblyReference.cache
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\obj\Debug\WordAnalysis.Form1.resources
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\obj\Debug\WordAnalysis.Properties.Resources.resources
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\obj\Debug\WordAnalysis.csproj.GenerateResource.Cache
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\bin\Debug\WordAnalysis.exe
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\bin\Debug\WordAnalysis.pdb
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\obj\Debug\WordAnalysis.exe
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\obj\Debug\WordAnalysis.pdb
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\bin\Debug\Newtonsoft.Json.dll
+d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\bin\Debug\Newtonsoft.Json.xml
