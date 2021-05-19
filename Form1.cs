@@ -7,14 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+using clojure.lang;
+using Newtonsoft.Json;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace WordAnalysis
 {
-    using Newtonsoft.Json;
-
-    using Word = Microsoft.Office.Interop.Word;
-
-
     public partial class Form1 : Form
     {
         public Form1()
@@ -22,44 +23,67 @@ namespace WordAnalysis
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        public void Form1_Load(object sender, EventArgs e)
         {
             Word.Application app = new Word.Application();
             Word.Document doc = null;
             app.Visible = true;
             string path = "D:/MyConfiguration/lzy13870/Documents/test.docx";
             var document = Open(path, app);
-            StringBuilder buf = new StringBuilder(Json(Range(2,7)));
+            StringBuilder buf = new StringBuilder();
+            string xml = document.Content.XML;
+            buf.AppendLine(Str(Xml(xml).InnerXml));
 
-            foreach (Word.Range range in document.Content.Sentences)
-            {
-                buf.AppendLine(PP(range, 1));
-            }
-            buf.AppendLine(Json(document.Content.Tables));
+            //buf.AppendLine(Str(xml));
+            //buf.AppendLine(
+            //    Str("Sentences", Str(Loop(document.Content.Sentences).Select(range => PP(range, 1)).ToList().ToArray())));
             textBox1.Text = buf.ToString();
             document.Close();
         }
 
-        private static Word.Document Open(string path, Word.Application app)
+        public static XmlElement Xml(string xml)
+        {
+            try
+            {
+                XmlDocument document = new XmlDocument();
+                document.LoadXml(xml);
+                return document.DocumentElement;
+            }
+            catch (Exception exception)
+            {
+                Exceptions.Add(exception);
+            }
+            return null;
+        }
+
+        public static IEnumerable<Word.Range> Loop(Word.Sentences sentences)
+        {
+            for (int i = 1; i < sentences.Count; i++)
+            {
+                yield return sentences[i];
+            }
+        }
+
+        public static Word.Document Open(string path, Word.Application app)
         {
             object file = path;
             object unknow = Type.Missing;
             Word.Document document = app.Documents.Open(
-                ref file,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
-                ref unknow,
+                ref file, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
+                ref unknow, 
                 ref unknow);
             return document;
         }
@@ -77,86 +101,133 @@ namespace WordAnalysis
             return Str(Range(0, n).Select(i => text).ToList().ToArray());
         }
 
-        private static string PP(Word.Range range,int n)
+        public static string PP(Word.Range range, int n)
         {
-            int current = n+1;
-            StringBuilder buf = new StringBuilder(Str(Repeat("\t",current), range.Text));
-            for (int j = 1; j < range.Tables.Count; j++)
-            {
-                try
-                {
-                    buf.Append("\t");
-                    Word.Table table = range.Tables[j];
-                    buf.AppendLine(Str(Repeat("\t", current), PP(table, current)));
-                    buf.AppendLine(Str(Repeat("\t",current),PP(table.Range,current)));
-                }
-                catch (Exception exception)
-                {
-                    buf.AppendLine(exception.Message);
-                    throw exception;
-                }
-            }
-            for (int j = 1; j < range.Bookmarks.Count; j++)
-            {
-                try
-                {
-                    Word.Bookmark bookmark = range.Bookmarks[j];
-                    buf.AppendLine(Str(Repeat("\t", current), PP(bookmark, current)));
-                }
-                catch (Exception exception)
-                {
-                    buf.AppendLine(exception.Message);
-                    throw exception;
-                }
-            }
+            int current = n + 1;
+            StringBuilder buf = new StringBuilder(Str(Repeat("\t", n), "Range", range.Text));
 
-            foreach (Word.Cell cell in range.Cells)
-            {
-                buf.AppendLine(Str(Repeat("\t", current), PP(cell, current)));
-            }
+            buf.AppendLine(Str(Repeat("\t", current), "Tables",
+                Str(
+                    Try(
+                        range,
+                        r =>
+                        Loop(r.Tables)
+                            .Select(table => Str(PP(table, current)))
+                            .ToList()
+                            .ToArray()))));
+            buf.AppendLine(Str(Repeat("\t", current), "Bookmarks",
+                Str(
+                    Loop(range.Bookmarks)
+                        .Select(bookmark => Str(PP(bookmark, current)))
+                        .ToList()
+                        .ToArray())));
+
+            buf.AppendLine(Str(Repeat("\t", current), "Words",
+                Str(
+                    Try(
+                        range,
+                        r =>
+                        Loop(r.Words)
+                            .Select(bookmark => Str(PP(bookmark, current)))
+                            .ToList()
+                            .ToArray()))));
+            range.Select();
+            buf.AppendLine(Str(Repeat("\t", current), "Cells",
+                Str(
+                    Try(
+                        range,
+                        r =>
+                        Loop(r.Cells)
+                            .Select(bookmark => Str(PP(bookmark, current)))
+                            .ToList()
+                            .ToArray()))));
             return buf.ToString();
         }
 
-        private static string PP(Word.Cell cell, int n)
+        public static IEnumerable<Word.Range> Loop(Word.Words words)
+        {
+            for (int i = 0; i < words.Count; i++)
+            {
+                yield return words[i];
+            }
+        }
+
+        public static IEnumerable<Word.Cell> Loop(Word.Cells cells)
+        {
+            for (int i = 1; i < cells.Count; i++)
+            {
+                yield return cells[i];
+            }
+        }
+
+        public static IEnumerable<Word.Bookmark> Loop(Word.Bookmarks bookmarks)
+        {
+            for (int j = 1; j < bookmarks.Count; j++)
+            {
+                yield return bookmarks[j];
+            }
+        }
+
+        public static IEnumerable<Word.Table> Loop(Word.Tables tables)
+        {
+            for (int j = 1; j < tables.Count; j++)
+            {
+                yield return tables[j];
+            }
+        }
+
+        public static List<Exception> Exceptions = new List<Exception>();
+
+        public static TOut Try<TIn, TOut>(TIn source, Func<TIn, TOut> fn) where TOut : class where TIn : class
+        {
+            try
+            {
+                return fn(source);
+            }
+            catch (Exception exception)
+            {
+                Exceptions.Add(exception);
+            }
+
+            return null;
+        }
+
+        public static string DrawLine(int current, Word.Cell cell)
+        {
+            return Str(Repeat("\t", current), PP(cell, current));
+        }
+
+        public static string PP(Word.Cell cell, int n)
         {
             int current = n + 1;
             StringBuilder buf = new StringBuilder();
-            buf.Append(Str(Repeat("\t", current), PP(cell.Range, current)));
+            buf.Append(Str("Cell",Repeat("\t", current), PP(cell.Range, current)));
             return buf.ToString();
         }
 
-        private static string PP(Word.Bookmark bookmark,int n)
+        public static string PP(Word.Bookmark bookmark, int n)
         {
             int current = n + 1;
             StringBuilder buf = new StringBuilder();
-            buf.AppendLine(Str(Repeat("\t", current), bookmark.Name, PP(bookmark.Range, current)));
+            buf.AppendLine(Str("Bookmark", Repeat("\t", current), bookmark.Name, PP(bookmark.Range, current)));
             return buf.ToString();
         }
 
-        public static string PP(Word.Table table,int n)
+        public static string PP(Word.Table table, int n)
         {
             int current = n + 1;
-            StringBuilder buf = new StringBuilder();
-            if (table.Rows.Count > 0)
+            return Str(Loop(table.Rows).Select(r => Str("Row", Repeat("\t", current), PP(r, current))).ToList().ToArray());
+        }
+
+        public static IEnumerable<Word.Row> Loop(Word.Rows rows)
+        {
+            for (int k = 1; k < rows.Count; k++)
             {
-                for (int k = 1; k < table.Rows.Count; k++)
-                {
-                    try
-                    {
-                        Word.Row row = table.Rows[k];
-                        buf.Append(Str(Repeat("\t", current), PP(row,current)));
-                    }
-                    catch (Exception exception)
-                    {
-                        buf.AppendLine(exception.Message);
-                        throw exception;
-                    }
-                }
+                yield return rows[k];
             }
-            return buf.ToString();
         }
 
-        private static string PP(Word.Row row,int n)
+        public static string PP(Word.Row row, int n)
         {
             int current = n + 1;
             StringBuilder buf = new StringBuilder();
@@ -167,7 +238,7 @@ namespace WordAnalysis
                     try
                     {
                         Word.Cell cell = row.Cells[l];
-                        buf.AppendLine(Str(Repeat("\t", current), PP(cell.Range,current)));
+                        buf.AppendLine(Str(Repeat("\t", current), PP(cell.Range, current)));
                     }
                     catch (Exception exception)
                     {
@@ -176,12 +247,18 @@ namespace WordAnalysis
                     }
                 }
             }
+
             return buf.ToString();
         }
 
         public static string Str(params object[] strings)
         {
-            return string.Join(string.Empty, strings);
+            if (strings != null)
+            {
+                return string.Join(string.Empty, strings);
+            }
+
+            return string.Empty;
         }
 
         public static string Json(object obj)

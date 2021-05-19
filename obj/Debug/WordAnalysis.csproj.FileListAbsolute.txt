@@ -9,3 +9,17 @@ d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\o
 d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\obj\Debug\WordAnalysis.pdb
 d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\bin\Debug\Newtonsoft.Json.dll
 d:\myconfiguration\lzy13870\documents\visual studio 2012\Projects\WordAnalysis\bin\Debug\Newtonsoft.Json.xml
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\WordAnalysis.exe.config
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Debug\WordAnalysis.exe
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Debug\WordAnalysis.pdb
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\WordAnalysis.exe
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\WordAnalysis.pdb
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\Newtonsoft.Json.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\Newtonsoft.Json.xml
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Debug\WordAnalysis.csprojResolveAssemblyReference.cache
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Debug\WordAnalysis.Form1.resources
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Debug\WordAnalysis.Properties.Resources.resources
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Debug\WordAnalysis.csproj.GenerateResource.Cache
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\Clojure.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\Microsoft.Dynamic.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Debug\Microsoft.Scripting.dll
