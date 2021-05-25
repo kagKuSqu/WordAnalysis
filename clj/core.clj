@@ -1,1 +1,5 @@
-﻿
+﻿(ns core)
+
+
+
+"Hello"
