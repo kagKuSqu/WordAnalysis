@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="clj.core.clj, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\clj.core.clj.dll</HintPath>
+    </Reference>
     <Reference Include="Clojure">
       <HintPath>packages\Clojure.1.8.0\lib\net40\Clojure.dll</HintPath>
     </Reference>
@@ -81,7 +85,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="clj\core.clj" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -98,6 +101,15 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>set PATH=%25PATH%25;"D:\MyConfiguration\lzy13870\Documents\branchs\clojure-clr\bin\3.5\Debug";
+"Clojure.Compile.exe" clj.core
+xcopy /Y $(TargetDir)*.clj.dll $(ProjectDir)\libs</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

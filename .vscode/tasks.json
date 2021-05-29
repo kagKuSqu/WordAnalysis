@@ -1,0 +1,11 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "command": "D:/MyConfiguration/lzy13870/Documents/branchs/clojure-clr/bin/3.5/Debug/Clojure.Main.exe",
+    "isShellCommand": true,
+    "args": [
+        "clj.core"
+    ],
+    "showOutput": "always"
+}

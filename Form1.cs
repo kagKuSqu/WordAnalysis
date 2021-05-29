@@ -25,20 +25,36 @@ namespace WordAnalysis
 
         public void Form1_Load(object sender, EventArgs e)
         {
+            //Word.Application app = new Word.Application();
+            //Word.Document doc = null;
+            //app.Visible = true;
+            //string path = "D:/MyConfiguration/lzy13870/Documents/test.docx";
+            //var document = Open(path, app);
+            //StringBuilder buf = new StringBuilder();
+            //string xml = document.Content.XML;
+            //buf.AppendLine(Str(Xml(xml).InnerXml));
+            ////buf.AppendLine(Str(xml));
+            ////buf.AppendLine(
+            ////    Str("Sentences", Str(Loop(document.Content.Sentences).Select(range => PP(range, 1)).ToList().ToArray())));
+            //textBox1.Text = buf.ToString();
+            //document.Close();
+            textBox1.Text = WordDocument("D:/MyConfiguration/lzy13870/Documents/test.docx");
+        }
+
+        public static string WordDocument(string path)
+        {
             Word.Application app = new Word.Application();
             Word.Document doc = null;
             app.Visible = true;
-            string path = "D:/MyConfiguration/lzy13870/Documents/test.docx";
             var document = Open(path, app);
             StringBuilder buf = new StringBuilder();
             string xml = document.Content.XML;
-            buf.AppendLine(Str(Xml(xml).InnerXml));
-
             //buf.AppendLine(Str(xml));
             //buf.AppendLine(
             //    Str("Sentences", Str(Loop(document.Content.Sentences).Select(range => PP(range, 1)).ToList().ToArray())));
-            textBox1.Text = buf.ToString();
             document.Close();
+            
+            return xml;
         }
 
         public static XmlElement Xml(string xml)
