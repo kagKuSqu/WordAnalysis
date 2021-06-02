@@ -1,0 +1,15 @@
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\WordAnalysis.exe.config
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\WordAnalysis.exe
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\WordAnalysis.pdb
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\clj.core.clj.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\Clojure.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\Microsoft.Dynamic.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\Microsoft.Scripting.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\Newtonsoft.Json.dll
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\bin\Release\Newtonsoft.Json.xml
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Release\WordAnalysis.Form1.resources
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Release\WordAnalysis.Properties.Resources.resources
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Release\WordAnalysis.csproj.GenerateResource.Cache
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Release\WordAnalysis.exe
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Release\WordAnalysis.pdb
+D:\MyConfiguration\lzy13870\Documents\branchs\WordAnalysis\obj\Release\WordAnalysis.csprojResolveAssemblyReference.cache
