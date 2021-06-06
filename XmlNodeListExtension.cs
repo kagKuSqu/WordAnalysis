@@ -38,7 +38,7 @@ namespace WordAnalysis
     {
         public static T Get<T>(this List<T> source, int index=0) where T : class
         {
-            if (source == null || source.Count <= index+1)
+            if (source == null || source.Count <= index)
             {
                 return null;
             }
@@ -56,12 +56,21 @@ namespace WordAnalysis
 
         public static IEnumerable<string> MatchesSplit(this string source, string pattern = "")
         {
-            var arr = source.Matches(pattern).Select(time => source.IndexOf(time)).ToArray();
+            int[] arr = source.Matches(pattern).Select(time => source.IndexOf(time)).ToArray();
             for (int i = 0; i < arr.Length; i++)
             {
-                var str = i == arr.Length - 1 || arr[i + 1] - arr[i] < 0
-                              ? source.SubstringEx(arr[i])
-                              : source.SubstringEx(arr[i], arr[i + 1] - arr[i]);
+                string str;
+                var current = arr[i];
+                if (i+1==arr.Length)
+                {
+                    str = source.SubstringEx(current);
+                }
+                else
+                {
+                    var next = arr[i + 1];
+                    var offset = next - current;
+                    str = source.SubstringEx(current, offset);
+                }
                 yield return str;
             }
         }

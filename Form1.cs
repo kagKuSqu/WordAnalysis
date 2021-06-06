@@ -14,10 +14,10 @@ using clojure.lang;
 using Newtonsoft.Json;
 using Microsoft.Scripting.Utils;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace WordAnalysis
 {
-
     public partial class Form1 : Form
     {
         public Form1()
@@ -27,6 +27,8 @@ namespace WordAnalysis
 
         public void Form1_Load(object sender, EventArgs e)
         {
+            throw new Exception(ParseMathForm("1+2*3+4*8+5*6"));
+
             //Word.Application app = new Word.Application();
             //Word.Document doc = null;
             //app.Visible = true;
@@ -72,6 +74,7 @@ namespace WordAnalysis
 
         private static string Parse(string xmlText)
         {
+
             var xml = Xml(
                 xmlText.Replace("w:", string.Empty).Replace("wx:", string.Empty).Replace("wsp:", string.Empty));
             StringBuilder buf = new StringBuilder();
@@ -84,99 +87,219 @@ namespace WordAnalysis
                 xml.Select("//tr")
                     .Select(
                         tr =>
-                        tr.Select("tc/p")
-                            .Select(p => p.Select("r/t").Select(t => t.InnerText).JoinStrings())
-                            .JoinStrings("|"))
-                    .JoinStrings("\r\n"));
-            var s = buf.ToString();
-            return Str(s, "\r\n", s.Split("\r\n".ToCharArray()).Select(
-                (string line) =>
-                {
-                    line = line.ReplaceRegex("服务标准");
-                    var resourceTypePattern = "(门票|用餐|住宿|导游|保险|其他|交通){1}";
-                    var unitPattern = "((元|辆|人|餐|间|车|天)+\/*)+";
-                    var numberPattern = @"([0-9]+[\,\.\+\-\*\/\^\=\s]*)+";
-                    var resourceTypeColumnPattern = @"\|*[0-9]{1,3}、*(门票|用餐|住宿|导游|保险|其他|交通){1}\|*";
-                    var fastText =
-                        line.Matches(resourceTypeColumnPattern)
-                            .JoinStrings("\t")
-                            .Matches(resourceTypePattern)
-                            .JoinStrings("\t");
-                    if (fastText.IsNotEmpty())
-                    {
-                        var separator = @"(\||\s)+";
-                        var separator2 = @"(\||\s)*";
-
-                        var row = line.Split(new []{'|',' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
-                        //var resourceNameColumnPattern = Str(separator2, @"(\s*\d*\s*\.*\；*\(*[\u4e00-\u9fa5]+\)*\s*\d*\s*\s*\d*\s*\.*\；*)+", separator2);
-                        //var resourceType = line.MatchesJoinTrim(resourceTypeColumnPattern).MatchesJoin(Str(resourceTypePattern));
-                        //line = line.ReplaceRegex(resourceTypeColumnPattern);
-                        //var price = line.MatchesJoin(Str(separator, pricePattern,unitPattern, separator2), " , ").MatchesJoinTrim(pricePattern);
-                        //line = line.ReplaceRegex(Str(separator, pricePattern, unitPattern, separator2));
-                        //var count = line.MatchesJoinTrim(Str(separator, pricePattern, separator)).MatchesJoinTrim(pricePattern);
-                        //var total = line.MatchesJoinTrim(Str(separator, pricePattern, separator2)).MatchesJoinTrim(pricePattern);
-                        //var unit = line.MatchesJoinTrim(Str(separator, unitPattern, separator));
-                        //line = line.ReplaceRegex(Str(separator, unitPattern, separator));
-                        //var resourceName = line.Matches(resourceNameColumnPattern).Select(txt => txt.Trim().Trim('|')).JoinStrings("+");
-                        //line = line.ReplaceRegex(resourceNameColumnPattern);
-                        return string.Join(
-                            " ",
-                            line,
-                            Json(row),
-                            "\r\n",
-                            "resourceType:",
-                            row.Get(0).MatchesJoinTrim(resourceTypePattern),
-                            "resourceName:",
-                            row.Get(1),
-                            "price:",
-                            row.Get(2).MatchesJoinTrim(numberPattern),
-                            "unit:",
-                            row.Get(3).MatchesJoinTrim(unitPattern),
-                            "count:",
-                            row.Get(4).MatchesJoinTrim(numberPattern),
-                            "total:",
-                            row.Get(5).MatchesJoinTrim(numberPattern));
-                    }
-                    else if (line.MatchesJoinTrim(@"\|*(D|第)*[0-9]+天*：*\|*").IsNotEmpty())
-                    {
-                        var dayPattern = @"\|*\s*(D|第)+\s*[0-9]+\s*天*\s*(\：|\:)*\s*\|*";
-                        var timePattern = @"(([0-9]{1,2}\s*(\:|\：)\s*[0-9]{1,2})+(\s*(\-|\—)+\s*[0-9]{1,2}\s*(\:|\：)+\s*[0-9]{1,2})*)+";
-                        return
-                            string.Join(
-                                "\r\n",
-                                line.MatchesSplit(dayPattern)
+                        tr.Select("tc")
+                            .Select(
+                                tc =>
+                                tc.Select("p")
                                     .Select(
-                                        day =>
-                                        Str(
-                                            "\r\n",
-                                            day.MatchesJoin(@"([\u4e00-\u9fa5]+(\s*(\-|\—)+\s*[\u4e00-\u9fa5]+)+\s*\|+)+", ","),
-                                            "\r\n",
-                                            day.MatchesJoin(dayPattern, ","),
-                                            "\r\n",
-                                            day
-                                            .MatchesSplit(timePattern)
+                                        p =>
+                                        p.Select("r")
                                             .Select(
-                                                time =>
-                                                Str(
-                                                    "\r\n\t",
-                                                    time.MatchesJoin(timePattern, ","),
-                                                    @"    ",
-                                                    ParseResourceType(time),
-                                                    @"    ",
-                                                    time))
-                                            .JoinStrings("\r\n")))
-                                    .JoinStrings("\r\n")).Replace("|", string.Empty);
-                    }
-                    return fastText;
-                }).JoinStrings("\r\n"));
+                                                r => r.Select("t").Select(t => t.InnerText).JoinStrings("\t"))
+                                            .JoinStrings()).JoinStrings("|"))
+                                    .JoinStrings("|"))
+                    .JoinStrings(Environment.NewLine));
+            var s = buf.ToString();
+            return Str(
+                s.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(
+                    (string line) =>
+                        {
+                            line = line.ReplaceRegex("服务标准");
+                            var resourceTypePattern = "(门票|用餐|住宿|导游|保险|其他|交通){1}";
+                            var unitPattern = @"((元|辆|人|餐|间|车|天|晚|桌|场)+\/*)+";
+                            var numberPattern = @"([0-9]+[\,\.\+\-\*\/\^\=\s]*)+";
+                            var resourceTypeColumnPattern = @"\|*[0-9]{1,3}、*(门票|用餐|住宿|导游|保险|其他|交通){1}\|*";
+                            var pricePattern = Str(numberPattern, unitPattern);
+                            var fastText =
+                                line.Matches(resourceTypeColumnPattern)
+                                    .JoinStrings("\t")
+                                    .Matches(resourceTypePattern)
+                                    .JoinStrings("\t");
+                            if (fastText.IsNotEmpty())
+                            {
+                                line = line.Trim('|');
+                                var row = line.Split(new[] { '|' }).ToList();
+                                var resourceType = row.Get(0).MatchesJoinTrim(resourceTypePattern);
+                                var resourceName = row.Get(1);
+                                if (row.Count>5)
+                                {
+                                    var subPrice = row.Skip(2).Take(row.Count - 2 - 2).Where(item=>item.Matches(pricePattern).Take(1).JoinStrings().Trim().IsNotEmpty());
+                                    var subPriceStart = row.IndexOf(subPrice.FirstOrDefault());
+                                    var subPriceCount = subPrice.Count();
+                                    var subPriceEnd = subPriceStart + subPriceCount;
+                                    return string.Join(Environment.NewLine,
+                                        Json(line),
+                                        Json(row),
+                                        //Json(row.Skip(2)),
+                                        //Json(row.Skip(2).Take(row.Count - 2 - 2)),
+                                        subPrice.Select(
+                                            item =>
+                                                {
+                                                    var idx = (row.IndexOf(item) - subPriceStart);
+                                                    var count = row.Get(subPriceEnd + idx).MatchesJoinTrim(numberPattern);
+                                                    var total = row.Get(subPriceEnd + subPriceCount + idx).MatchesJoinTrim(numberPattern);
+                                                    var price = item.Matches(pricePattern).Take(1).JoinStrings();
+                                                    var unit = item.MatchesJoinTrim(unitPattern);
+                                                    var days = item.Matches(@"\*\d+").Get(0).MatchesJoinTrim(@"\d+");
+                                                    var output = string.Join(
+                                                        " ",
+                                                        //Json(row),
+                                                        "resourceType:",
+                                                        resourceType,
+                                                        "resourceName:",
+                                                        resourceName,
+                                                        "price:",
+                                                        price,
+                                                        "unit:",
+                                                        unit,
+                                                        "days:",
+                                                        days,
+                                                        "count:",
+                                                        count,
+                                                        "total:",
+                                                        total);
+                                                    return output;
+                                                })
+                                            .JoinStrings(Environment.NewLine));
+                                }
+                                return string.Join(
+                                    " ",
+                                    //Json(row),
+                                    "resourceType:",
+                                    resourceType,
+                                    "resourceName:",
+                                    resourceName,
+                                    "price:",
+                                    row.Get(2).Matches(pricePattern).Take(1).JoinStrings(),
+                                    "unit:",
+                                    row.Get(2).MatchesJoinTrim(unitPattern),
+                                    "days:",
+                                    row.Get(2).Matches(@"\*\d+").Get(0).MatchesJoinTrim(@"\d+"),
+                                    "count:",
+                                    row.Get(3).MatchesJoinTrim(numberPattern),
+                                    "total:",
+                                    row.Get(4).MatchesJoinTrim(numberPattern));
+                            }
+                            else if (line.MatchesJoinTrim(@"\|*(D|第)*[0-9]+天*\：*\|*").IsNotEmpty())
+                            {
+                                var dayPattern = @"\|*\s*(D|第)+\s*[0-9]+\s*天*\s*(\：|\:)*\s*\|*";
+                                var timePattern =
+                                    @"\|+(([0-9]+\s*(\:|\：)+\s*[0-9]+)+(\s*(\-|\—|\—\—)+\s*[0-9]+\s*(\:|\：)+\s*[0-9]+)*)+";
+                                return string.Join(
+                                    Environment.NewLine,
+                                    line.MatchesSplit(dayPattern).Select(
+                                        day =>
+                                            {
+                                                var dayDesc =
+                                                    day.MatchesJoin(
+                                                        @"([\u4e00-\u9fa5]+(\s*(\-|\—|\—\—)+\s*[\u4e00-\u9fa5]+)+\s*\|+)+",
+                                                        ",");
+                                                var dayIndexDesc = day.MatchesJoin(dayPattern, ",");
+                                                return Str(
+                                                    Environment.NewLine,
+                                                    dayDesc,
+                                                    Environment.NewLine,
+                                                    dayIndexDesc,
+                                                    Environment.NewLine,
+                                                    day.MatchesSplit(timePattern).Select(
+                                                        time =>
+                                                            {
+                                                                var timeDesc = time.MatchesJoin(timePattern, ",");
+                                                                var resourceType = ParseResourceType(time);
+                                                                time = time.Replace(timeDesc, string.Empty);
+                                                                var str = Str(
+                                                                    "\t",
+                                                                    timeDesc.PadRight(20),
+                                                                    @"    ",
+                                                                    resourceType.PadRight(5),
+                                                                    @"    ",
+                                                                    time);
+                                                                return str;
+                                                            }).JoinStrings(Environment.NewLine));
+                                            }).JoinStrings(Environment.NewLine)).Replace("|", string.Empty);
+                            }
+                            return fastText;
+                        }).JoinStrings(Environment.NewLine),
+                Environment.NewLine,
+                s,
+                Environment.NewLine,
+                xml.Select("//tr").Select(tr => PrettyXml(tr.OuterXml)).JoinStrings(Environment.NewLine));
+        }
+
+        public static string ParseMathForm(string input)
+        {
+            var funcs = new Dictionary<string, Func<string, string>>()
+                            {
+                                {
+                                    "/",
+                                    str =>
+                                    str.SplitEx("/")
+                                        .Select(ParseMathForm)
+                                        .Select(double.Parse)
+                                        .Aggregate((a, b) => a / b)
+                                        .ToString()
+                                },
+                                {
+                                    "*",
+                                    str =>
+                                    str.SplitEx("*")
+                                        .Select(ParseMathForm)
+                                        .Select(double.Parse)
+                                        .Aggregate((a, b) => a * b)
+                                        .ToString()
+                                },
+                                {
+                                    "+",
+                                    str =>
+                                    str.SplitEx("+")
+                                        .Select(ParseMathForm)
+                                        .Select(double.Parse)
+                                        .Aggregate((a, b) => a + b)
+                                        .ToString()
+                                },
+                                {
+                                    "-",
+                                    str =>
+                                    str.SplitEx("-")
+                                        .Select(ParseMathForm)
+                                        .Select(double.Parse)
+                                        .Aggregate((a, b) => a - b)
+                                        .ToString()
+                                }
+                            };
+            var key = funcs.Keys.FirstOrDefault(k => input.Contains(k));
+            if (key.IsNotEmpty())
+            {
+                return funcs[key](input);
+            }
+            return input;
+        }
+
+        public static string PrettyXml(string xml)
+        {
+            var stringBuilder = new StringBuilder();
+
+            var element = XElement.Parse(xml);
+
+            var settings = new XmlWriterSettings();
+            settings.OmitXmlDeclaration = true;
+            settings.Indent = true;
+            settings.NewLineOnAttributes = true;
+
+            using (var xmlWriter = XmlWriter.Create(stringBuilder, settings))
+            {
+                element.Save(xmlWriter);
+            }
+
+            return stringBuilder.ToString();
         }
 
         private static string ParseResourceType(string time)
         {
             var map = new Dictionary<string, string>()
                           {
-                              { "(出发|返回|乘|指定地点)+", "交通" },
-                              { "(游览|游玩)+", "景点" },
+                              { "(出发|返回|乘|指定地点|大巴)+", "交通" },
+                              { "(游|风景区)+", "景点" },
                               { "(酒店)+", "酒店" },
                               { "(餐)+", "餐饮" },
                           };
