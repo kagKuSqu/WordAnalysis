@@ -36,6 +36,10 @@ namespace WordAnalysis
 
     public static class ListExtension
     {
+        public static HashSet<T> HashSet<T>(this List<T> source) where T : class
+        {
+            return new HashSet<T>(source);
+        }
         public static T Get<T>(this List<T> source, int index=0) where T : class
         {
             if (source == null || source.Count <= index)

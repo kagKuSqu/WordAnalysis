@@ -18,6 +18,8 @@ using System.Xml.Linq;
 
 namespace WordAnalysis
 {
+    using System.IO.Compression;
+
     public partial class Form1 : Form
     {
         public Form1()
@@ -27,8 +29,6 @@ namespace WordAnalysis
 
         public void Form1_Load(object sender, EventArgs e)
         {
-            throw new Exception(ParseMathForm("1+2*3+4*8+5*6"));
-
             //Word.Application app = new Word.Application();
             //Word.Document doc = null;
             //app.Visible = true;
@@ -67,6 +67,7 @@ namespace WordAnalysis
             //File.WriteAllText("temp.xml", xmlText);
             //Process.Start("temp.xml");
             //buf.AppendLine(xml.SelectNodes("//tbl").ToEnumerable().Take(1).FirstOrDefault().OuterXml);
+            buf.AppendLine(path);
             buf.AppendLine(Parse(xmlText));
             Clipboard.SetText(buf.ToString());
             return buf.ToString();
@@ -120,7 +121,7 @@ namespace WordAnalysis
                                 line = line.Trim('|');
                                 var row = line.Split(new[] { '|' }).ToList();
                                 var resourceType = row.Get(0).MatchesJoinTrim(resourceTypePattern);
-                                var resourceName = row.Get(1);
+                                var resourceName = row.Get(1).Trim();
                                 if (row.Count>5)
                                 {
                                     var subPrice = row.Skip(2).Take(row.Count - 2 - 2).Where(item=>item.Matches(pricePattern).Take(1).JoinStrings().Trim().IsNotEmpty());
@@ -128,26 +129,32 @@ namespace WordAnalysis
                                     var subPriceCount = subPrice.Count();
                                     var subPriceEnd = subPriceStart + subPriceCount;
                                     return string.Join(Environment.NewLine,
-                                        Json(line),
-                                        Json(row),
+                                        //Json(line),
+                                        //Json(row),
                                         //Json(row.Skip(2)),
                                         //Json(row.Skip(2).Take(row.Count - 2 - 2)),
                                         subPrice.Select(
                                             item =>
                                                 {
                                                     var idx = (row.IndexOf(item) - subPriceStart);
-                                                    var count = row.Get(subPriceEnd + idx).MatchesJoinTrim(numberPattern);
+                                                    var count = ParseMathForm(row.Get(subPriceEnd + idx).MatchesJoinTrim(numberPattern));
                                                     var total = row.Get(subPriceEnd + subPriceCount + idx).MatchesJoinTrim(numberPattern);
-                                                    var price = item.Matches(pricePattern).Take(1).JoinStrings();
-                                                    var unit = item.MatchesJoinTrim(unitPattern);
+                                                    var price = item.Matches(pricePattern).Take(1).JoinStrings().MatchesJoinTrim(numberPattern);
+                                                    var unit = item.Matches(unitPattern).HashSet().JoinStrings();
                                                     var days = item.Matches(@"\*\d+").Get(0).MatchesJoinTrim(@"\d+");
+
+                                                    if (total.IsEmpty())
+                                                    {
+                                                        total = count;
+                                                        count = string.Empty;
+                                                    }
                                                     var output = string.Join(
                                                         " ",
                                                         //Json(row),
                                                         "resourceType:",
                                                         resourceType,
                                                         "resourceName:",
-                                                        resourceName,
+                                                        resourceName.PadRight(50),
                                                         "price:",
                                                         price,
                                                         "unit:",
@@ -162,23 +169,33 @@ namespace WordAnalysis
                                                 })
                                             .JoinStrings(Environment.NewLine));
                                 }
+                                var resourcePrice = row.Get(2).Matches(pricePattern).Take(1).JoinStrings().MatchesJoinTrim(numberPattern);
+                                var resourceUnit = row.Get(2).Matches(unitPattern).HashSet().JoinStrings();
+                                var resourceDays = row.Get(2).Matches(@"\*\d+").Get(0).MatchesJoinTrim(@"\d+");
+                                var resourceCount = ParseMathForm(row.Get(3).MatchesJoinTrim(numberPattern));
+                                var resourceTotal = row.Get(4).MatchesJoinTrim(numberPattern);
+                                if (resourceTotal.IsEmpty())
+                                {
+                                    resourceTotal = resourceCount;
+                                    resourceCount = string.Empty;
+                                }
                                 return string.Join(
                                     " ",
                                     //Json(row),
                                     "resourceType:",
                                     resourceType,
                                     "resourceName:",
-                                    resourceName,
+                                    resourceName.PadRight(50),
                                     "price:",
-                                    row.Get(2).Matches(pricePattern).Take(1).JoinStrings(),
+                                    resourcePrice,
                                     "unit:",
-                                    row.Get(2).MatchesJoinTrim(unitPattern),
+                                    resourceUnit,
                                     "days:",
-                                    row.Get(2).Matches(@"\*\d+").Get(0).MatchesJoinTrim(@"\d+"),
+                                    resourceDays,
                                     "count:",
-                                    row.Get(3).MatchesJoinTrim(numberPattern),
+                                    resourceCount,
                                     "total:",
-                                    row.Get(4).MatchesJoinTrim(numberPattern));
+                                    resourceTotal);
                             }
                             else if (line.MatchesJoinTrim(@"\|*(D|第)*[0-9]+天*\：*\|*").IsNotEmpty())
                             {
@@ -221,33 +238,16 @@ namespace WordAnalysis
                             return fastText;
                         }).JoinStrings(Environment.NewLine),
                 Environment.NewLine,
-                s,
-                Environment.NewLine,
-                xml.Select("//tr").Select(tr => PrettyXml(tr.OuterXml)).JoinStrings(Environment.NewLine));
+                s
+                //Environment.NewLine,
+                //xml.Select("//tr").Select(tr => PrettyXml(tr.OuterXml)).JoinStrings(Environment.NewLine)
+                );
         }
 
         public static string ParseMathForm(string input)
         {
             var funcs = new Dictionary<string, Func<string, string>>()
                             {
-                                {
-                                    "/",
-                                    str =>
-                                    str.SplitEx("/")
-                                        .Select(ParseMathForm)
-                                        .Select(double.Parse)
-                                        .Aggregate((a, b) => a / b)
-                                        .ToString()
-                                },
-                                {
-                                    "*",
-                                    str =>
-                                    str.SplitEx("*")
-                                        .Select(ParseMathForm)
-                                        .Select(double.Parse)
-                                        .Aggregate((a, b) => a * b)
-                                        .ToString()
-                                },
                                 {
                                     "+",
                                     str =>
@@ -264,6 +264,24 @@ namespace WordAnalysis
                                         .Select(ParseMathForm)
                                         .Select(double.Parse)
                                         .Aggregate((a, b) => a - b)
+                                        .ToString()
+                                },
+                                {
+                                    "/",
+                                    str =>
+                                    str.SplitEx("/")
+                                        .Select(ParseMathForm)
+                                        .Select(double.Parse)
+                                        .Aggregate((a, b) => a / b)
+                                        .ToString()
+                                },
+                                {
+                                    "*",
+                                    str =>
+                                    str.SplitEx("*")
+                                        .Select(ParseMathForm)
+                                        .Select(double.Parse)
+                                        .Aggregate((a, b) => a * b)
                                         .ToString()
                                 }
                             };
@@ -549,7 +567,7 @@ namespace WordAnalysis
                 var xmlText = document.Content.XML;
                 document.Close();
                 app.Quit();
-                this.textBox1.Text = Parse(xmlText);
+                this.textBox1.Text = Str(this.openFileDialog1.FileName, Environment.NewLine, Parse(xmlText));
             }
         }
     }
